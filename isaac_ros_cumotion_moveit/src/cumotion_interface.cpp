@@ -1,3 +1,4 @@
+// MoveIt 规划响应适配：通过动作客户端调用外部 cuMotion，把返回消息恢复为 MoveIt RobotTrajectory。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
@@ -40,6 +41,7 @@ constexpr unsigned kTimeoutIntervalInSeconds = 5;
 
 }  // namespace
 
+// 发送规划场景和请求，轮询动作结果；超时或失败通过 MoveIt error_code 返回。
 void CumotionInterface::solve(
   const planning_scene::PlanningSceneConstPtr & planning_scene,
   const planning_interface::MotionPlanRequest & request,
@@ -54,6 +56,7 @@ void CumotionInterface::solve(
   }
 
   rclcpp::Time start_time = node_->now();
+  // goal 发送后以 5ms 间隔轮询，5s 按 ROS 时钟计；发送前的服务器等待不在此计时内。
   while (
     !action_client_->result_ready &&
     node_->now().seconds() - start_time.seconds() < kTimeoutIntervalInSeconds)
@@ -80,6 +83,7 @@ void CumotionInterface::solve(
 
   response.error_code = action_client_->plan_response.error_code;
   response.description = action_client_->plan_response.description;
+  // 以当前 PlanningScene 的 RobotModel 与返回 trajectory_start 恢复轨迹对象，交回 MoveIt 上层。
   auto result_traj = std::make_shared<robot_trajectory::RobotTrajectory>(
     planning_scene->getRobotModel(), request.group_name);
   moveit::core::RobotState robot_state(planning_scene->getRobotModel());

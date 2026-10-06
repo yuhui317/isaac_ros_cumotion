@@ -96,3 +96,12 @@ Please visit the [Isaac ROS Documentation](https://nvidia-isaac-ros.github.io/re
 ## Latest
 
 Update 2026-09-21: Compatibility and integration updates for the Isaac ROS 5.0.0 release
+
+
+## 本地学习分析
+
+本轮仅对 8 个核心文件增加中文注释，全部原始代码保留；详见 [初步分析](study/analysis.md) 与 [阅读及注释范围](study/annotation_scope.json)。当前尚未构建或运行 ROS/GPU 实验，修改等待审查后再提交。
+
+### 学习材料更新与审查
+
+[代码树](study/code_tree.md) · [源码定位](study/code_symbols.md) · [正式验证报告](study/annotation_validation.json)。在本仓目录执行 `python study/generate_study_index.py` 更新树和行号，再执行 `python study/verify_annotations.py --report study/annotation_validation.json` 检查原代码保留情况。工具使用固定基线，不启动上游项目；阅读深度见范围表。

@@ -1,3 +1,4 @@
+// MoveIt PlanningContext 薄适配：把详细/简化规划响应连接到 CumotionInterface，供规划插件调用。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
@@ -24,11 +25,13 @@ namespace isaac
 namespace manipulation
 {
 
+// 将已设置的 planning_scene 与 request 原样委托给 cuMotion 接口。
 void CumotionPlanningContext::solve(planning_interface::MotionPlanDetailedResponse & res)
 {
   cumotion_interface_->solve(planning_scene_, request_, res);
 }
 
+// 先获取详细响应，再在成功时提取第一条轨迹与第一项处理时间。
 void CumotionPlanningContext::solve(planning_interface::MotionPlanResponse & res)
 {
   planning_interface::MotionPlanDetailedResponse res_detailed;

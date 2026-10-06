@@ -1,0 +1,14 @@
+{
+  "name": "isaac_ros_cumotion",
+  "upstream": "NVIDIA-ISAAC-ROS/isaac_ros_cumotion",
+  "fork": "yuhui317/isaac_ros_cumotion",
+  "local_path": "projects/isaac_ros_ws/src/isaac_ros_cumotion",
+  "source_branch": "release-5.0",
+  "study_branch": "codex/study/isaac-ros-code-analysis",
+  "baseline": "4744ab9e29e4df73e11e0eb5c75cdbe07bcd99fe",
+  "checkout_date": "2026-10-06",
+  "annotated_files": 8,
+  "read_files": 16,
+  "original_files": 138,
+  "gitlinks": []
+}

@@ -1,3 +1,4 @@
+// 碰撞世界桥接：将 MoveIt 几何物体与 nvblox ESDF 转成 cuMotion 世界，并计算物体清除区域和可视化占据。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
@@ -43,6 +44,7 @@ constexpr unsigned int kAssimpPostProcessFlags =
   aiProcess_JoinIdenticalVertices |
   aiProcess_GenNormals;
 
+// 缓存世界配置与 Assimp 网格读取器后建立原生世界。
 WorldManagerImpl::WorldManagerImpl(const Config & config, const rclcpp::Logger & logger)
 : logger_(logger),
   config_(config),
@@ -51,6 +53,7 @@ WorldManagerImpl::WorldManagerImpl(const Config & config, const rclcpp::Logger &
   Initialize();
 }
 
+// 创建 world，按配置加入地面盒体，再生成规划使用的 world_view。
 bool WorldManagerImpl::Initialize()
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
@@ -69,6 +72,7 @@ bool WorldManagerImpl::Initialize()
   return true;
 }
 
+// 持锁替换普通几何障碍，保留命名地面/体素项并更新 world_view，返回所有输入是否支持。
 bool WorldManagerImpl::UpdateWorldObjects(
   const std::vector<moveit_msgs::msg::CollisionObject> & collision_objects)
 {
@@ -97,6 +101,7 @@ bool WorldManagerImpl::UpdateWorldObjects(
   return success;
 }
 
+// 移除记录在 obstacle_handles_ 中的非地面项并更新视图；该表与专用 ESDF handle 分开维护。
 void WorldManagerImpl::ClearWorld()
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
@@ -120,30 +125,35 @@ void WorldManagerImpl::ClearWorld()
   world_view_.update();
 }
 
+// 持锁读取距离场网格形状。
 Eigen::Vector3i WorldManagerImpl::GetGridShape() const
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
   return config_.grid_shape;
 }
 
+// 持锁读取距离场最小角坐标。
 Eigen::Vector3d WorldManagerImpl::GetGridOrigin() const
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
   return config_.grid_origin_m;
 }
 
+// 持锁读取体素边长，单位为米。
 double WorldManagerImpl::GetVoxelSize() const
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
   return config_.voxel_size_m;
 }
 
+// 更新世界配置中的机器人基坐标系名称。
 void WorldManagerImpl::SetRobotBaseFrame(const std::string & robot_base_frame)
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
   config_.robot_base_frame = robot_base_frame;
 }
 
+// 在已初始化 ESDF 工作空间内采样；负距离点作为占据体素返回，数量受发布上限限制。
 std::vector<Eigen::Vector4f> WorldManagerImpl::CalculateOccupancyForVisualization()
 {
   std::lock_guard<std::mutex> lock(world_mutex_);
@@ -257,6 +267,7 @@ std::vector<Eigen::Vector4f> WorldManagerImpl::CalculateOccupancyForVisualizatio
   return voxels;
 }
 
+// 从 nvblox 响应读取网格形状/原点/分辨率，创建 SDF 障碍并上传 host 距离数组。
 bool WorldManagerImpl::ProcessEsdfResponse(
   const nvblox_msgs::srv::EsdfAndGradients::Response & response)
 {
@@ -294,6 +305,7 @@ bool WorldManagerImpl::ProcessEsdfResponse(
   std::lock_guard<std::mutex> lock(world_mutex_);
 
   // On first update, populate Config grid geometry from nvblox.
+  // 首次 ESDF 响应缓存网格几何；后续路径会核对形状并根据代码更新体素大小。
   if (config_.grid_shape == Eigen::Vector3i::Zero()) {
     config_.grid_shape = esdf_shape;
     config_.grid_origin_m = grid_origin;
@@ -334,6 +346,7 @@ bool WorldManagerImpl::ProcessEsdfResponse(
   esdf_obstacle_handle_ = world_->addObstacle(*(sdf_result.first), sdf_result.second);
   has_esdf_obstacle_ = true;
 
+  // 本函数把 esdf_array.data 当 FLOAT 距离值传入外部库，协议布局必须与原生 Grid 匹配。
   world_->setSdfGridValuesFromHost(
     esdf_obstacle_handle_, esdf_array.data.data(),
     cumotion_lib::Obstacle::Grid::Precision::FLOAT);
@@ -346,6 +359,7 @@ bool WorldManagerImpl::ProcessEsdfResponse(
 }
 
 std::pair<std::unique_ptr<cumotion_lib::Obstacle>, cumotion_lib::Pose3>
+// 只创建 SDF 网格形状与原点位姿，距离数据由 ProcessEsdfResponse 单独填充。
 WorldManagerImpl::CreateSdfObstacleStructure(
   const Eigen::Vector3i & grid_shape,
   const Eigen::Vector3d & grid_origin,
@@ -376,6 +390,7 @@ WorldManagerImpl::CreateSdfObstacleStructure(
   return {std::move(sdf_obstacle), grid_pose};
 }
 
+// 以配置尺寸创建 CUBOID 地面障碍，并记录其 handle。
 void WorldManagerImpl::AddGroundPlane()
 {
   // Create ground plane as a box obstacle using configured dimensions.
@@ -397,6 +412,7 @@ void WorldManagerImpl::AddGroundPlane()
   ground_plane_added_ = true;
 }
 
+// 把每个 MoveIt 物体转换成一个或多个原生障碍，使用唯一名字记录 handle。
 bool WorldManagerImpl::AddCollisionObjects(
   const std::vector<moveit_msgs::msg::CollisionObject> & objects)
 {
@@ -427,6 +443,7 @@ bool WorldManagerImpl::AddCollisionObjects(
 }
 
 // Calculate AABBs to clear from ESDF for an object at the given pose
+// 根据球、盒或自定义网格生成 ESDF 待清除区域；padding 必须有 3 个元素。
 std::unique_ptr<EsdfClearingObjects> WorldManagerImpl::CalculateAabbsToClear(
   const geometry_msgs::msg::Pose & world_pose_object,
   const std::string & mesh_resource,
@@ -484,6 +501,7 @@ std::unique_ptr<EsdfClearingObjects> WorldManagerImpl::CalculateAabbsToClear(
   return clearing_objects;
 }
 
+// 球体用最大轴尺寸的一半加最大 padding 形成清除球。
 bool WorldManagerImpl::CalculateAabbsForSphere(
   const geometry_msgs::msg::Pose & world_pose_object,
   const Eigen::Vector3d & padding,
@@ -512,6 +530,7 @@ bool WorldManagerImpl::CalculateAabbsForSphere(
   return true;
 }
 
+// 把盒体八顶点变换到世界坐标，再计算含 padding 的轴对齐包围盒。
 bool WorldManagerImpl::CalculateAabbsForCuboid(
   const geometry_msgs::msg::Pose & world_pose_object,
   const Eigen::Vector3d & padding,
@@ -561,6 +580,7 @@ bool WorldManagerImpl::CalculateAabbsForCuboid(
   return true;
 }
 
+// 读取网格顶点并按 T·R·S 变换，计算世界坐标 AABB；不是精确旋转盒碰撞表示。
 bool WorldManagerImpl::CalculateAabbsForMesh(
   const geometry_msgs::msg::Pose & world_pose_object,
   const std::string & mesh_resource,
@@ -646,6 +666,7 @@ bool WorldManagerImpl::CalculateAabbsForMesh(
   return true;
 }
 
+// 由完整边长生成局部坐标的八个盒体角点。
 std::vector<Eigen::Vector3d> WorldManagerImpl::GenerateCuboidVertices(
   double size_x, double size_y, double size_z)
 {
@@ -667,6 +688,7 @@ std::vector<Eigen::Vector3d> WorldManagerImpl::GenerateCuboidVertices(
   };
 }
 
+// ESDF 清除网格读取支持 file:// 或文件路径；当前明确拒绝 package:// URI。
 bool WorldManagerImpl::LoadMesh(const std::string & mesh_resource)
 {
   if (mesh_resource.empty()) {
@@ -710,6 +732,7 @@ bool WorldManagerImpl::LoadMesh(const std::string & mesh_resource)
   return true;
 }
 
+// 逐顶点求世界坐标最小/最大值并按每侧 padding 扩张，输出最小角与尺寸。
 bool WorldManagerImpl::ComputeAABBFromVertices(
   const std::vector<Eigen::Vector3d> & vertices,
   const Eigen::Affine3d & world_transform,

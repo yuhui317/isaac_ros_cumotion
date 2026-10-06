@@ -1,0 +1,729 @@
+{
+  "baseline": "4744ab9e29e4df73e11e0eb5c75cdbe07bcd99fe",
+  "branch": "codex/study/isaac-ros-code-analysis",
+  "original_files": 138,
+  "verified_files": 138,
+  "gitlink_references": [],
+  "annotated_files": 8,
+  "modified_original_files": 9,
+  "annotated_python_definitions": 3,
+  "runtime_or_gpu_executed": false,
+  "cpp_compilation_executed": false,
+  "new_study_tools": [
+    {
+      "path": "study/generate_study_index.py",
+      "syntax": "passed",
+      "definitions": 8
+    },
+    {
+      "path": "study/verify_annotations.py",
+      "syntax": "passed",
+      "definitions": 9
+    }
+  ],
+  "limitations": "C++ lexical/static check only, not preprocessing or compilation; pinned submodule contents are not checked",
+  "passed": true,
+  "failures": [],
+  "files": [
+    {
+      "path": ".gitattributes",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": ".gitignore",
+      "changed": false,
+      "added_lines": 0
+    },
+    {
+      "path": "LICENSE",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "README.md",
+      "changed": true,
+      "added_lines": 9
+    },
+    {
+      "path": "SECURITY.md",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/CMakeLists.txt",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/cumotion_planner.hpp",
+      "changed": true,
+      "added_lines": 46,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/impl/cumotion_logger_bridge.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/impl/ik_solver_impl.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/impl/robot_manager_impl.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/impl/trajectory_optimizer_impl.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/impl/utils.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/impl/world_manager_impl.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/include/isaac_ros_cumotion/static_planning_scene.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/launch/isaac_ros_cumotion.launch.py",
+      "changed": true,
+      "added_lines": 9,
+      "python_ast": "equal",
+      "python_executable_tokens": "equal",
+      "definitions": 3
+    },
+    {
+      "path": "isaac_ros_cumotion/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/params/isaac_ros_cumotion_params.yaml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/scripts/verify_esdf_self_consistent.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/cumotion_planner.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/impl/cumotion_logger_bridge.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/impl/ik_solver_impl.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/impl/robot_manager_impl.cpp",
+      "changed": true,
+      "added_lines": 18,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/impl/trajectory_optimizer_impl.cpp",
+      "changed": true,
+      "added_lines": 11,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/impl/utils.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/impl/world_manager_impl.cpp",
+      "changed": true,
+      "added_lines": 23,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/src/static_planning_scene.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/download_rosbag.sh",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_cumotion_logger_bridge.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_cumotion_logger_bridge.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_moveit_scene_file_parser.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_robot_manager_impl.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_robot_manager_impl.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_trajectory_optimizer_impl.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_trajectory_optimizer_impl.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_utils_compose_pose.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_utils_compose_pose.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion/test/test_world_manager_impl.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/CMakeLists.txt",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/include/isaac_ros_cumotion_controllers/bimanual_ik_controller.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/include/isaac_ros_cumotion_controllers/controller_utils.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/include/isaac_ros_cumotion_controllers/ik_controller.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/include/isaac_ros_cumotion_controllers/ik_controller_base.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/isaac_ros_cumotion_controllers.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/scripts/ik_controller_marker_node.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/src/bimanual_ik_controller.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/src/ik_controller.cpp",
+      "changed": true,
+      "added_lines": 9,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_controllers/src/ik_controller_base.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/launch/franka.launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/launch/franka_isaac_sim.launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/launch/ur.launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/launch/ur_isaac_sim.launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/resource/isaac_ros_cumotion_examples",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/rviz/franka_moveit_config.rviz",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/rviz/ur_moveit_config.rviz",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/setup.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/test/test_copyright.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/test/test_flake8.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/test/test_franka_launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/test/test_pep257.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/ur_config/initial_positions.yaml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/ur_config/ros2_controllers.yaml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/ur_config/ur.ros2_control.xacro",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_examples/ur_config/ur.urdf.xacro",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/CMakeLists.txt",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/action/AttachObject.action",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/action/IKSolution.action",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/action/MotionPlan.action",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/action/UpdateLinkSpheres.action",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/srv/GetRobotDescription.srv",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/srv/PublishStaticPlanningScene.srv",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_interfaces/srv/SetRobotDescription.srv",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/CMakeLists.txt",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/config/isaac_ros_cumotion_planning.yaml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/cumotion_planner_plugin_description.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/include/isaac_ros_cumotion_moveit/cumotion_interface.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/include/isaac_ros_cumotion_moveit/cumotion_move_group_client.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/include/isaac_ros_cumotion_moveit/cumotion_planner_manager.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/include/isaac_ros_cumotion_moveit/cumotion_planning_context.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/src/cumotion_interface.cpp",
+      "changed": true,
+      "added_lines": 4,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/src/cumotion_move_group_client.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/src/cumotion_planner_manager.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_moveit/src/cumotion_planning_context.cpp",
+      "changed": true,
+      "added_lines": 3,
+      "cpp_noncomment_tokens": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/CMakeLists.txt",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/include/isaac_ros_cumotion_object_attachment/object_attachment.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/launch/object_attachment.launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/params/object_attachment_params.yaml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/src/object_attachment.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/test/isaac_ros_object_attachment_esdf_test.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/test/isaac_ros_object_attachment_pol_test.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/test/object_attachment_test_base.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_object_attachment/test/test_cuboid_geometry.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/resource/isaac_ros_cumotion_robot_description",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/setup.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/test/test_copyright.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/test/test_flake8.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/test/test_pep257.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/urdf/flexiv_rizon4s_grav.urdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/urdf/ur10e_robotiq_2f_140.urdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/urdf/ur10e_robotiq_2f_85.urdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/urdf/ur5e_robotiq_2f_140.urdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/urdf/ur5e_robotiq_2f_85.urdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/flexiv_rizon4s_grav.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/flexiv_rizon4s_grav_no_gripper_spheres.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/franka.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/ur10e.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/ur10e_robotiq_2f_140.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/ur10e_robotiq_2f_85.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/ur5e.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/ur5e_robotiq_2f_140.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_description/xrdf/ur5e_robotiq_2f_85.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/CMakeLists.txt",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/include/isaac_ros_cumotion_robot_segmenter/robot_segmenter.hpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/launch/robot_segmenter.launch.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/package.xml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/params/robot_segmentation_params.yaml",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/src/robot_segmenter.cpp",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/.gitignore",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/download_rosbag.sh",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/camera_pose.json",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/depth_camera_info.json",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/golden_robot_segmenter_depth_float16.npy",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/golden_robot_segmenter_depth_uint16.npy",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/golden_robot_segmenter_mask_float16.npy",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/golden_robot_segmenter_mask_uint16.npy",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/input_depth_image.npy",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/robot.urdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/robot.xrdf",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_data/robot_mask_from_curobo.npy",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_robot_segmenter_float16.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_robot_segmenter_pol.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_robot_segmenter_reload.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    },
+    {
+      "path": "isaac_ros_cumotion_robot_segmenter/test/test_robot_segmenter_uint16.py",
+      "changed": false,
+      "protected_bytes": "equal"
+    }
+  ]
+}

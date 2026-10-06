@@ -1,3 +1,4 @@
+// 原生 cuMotion 轨迹优化包装：接收起点与目标，校验求解状态，采样位置/速度/加速度并调整轨迹时间。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
@@ -35,6 +36,7 @@ namespace cumotion
 {
 
 // Constructor implementation.
+// 保存优化配置与采样间隔，拒绝非正 interpolation_dt 后立即初始化优化器。
 TrajectoryOptimizerImpl::TrajectoryOptimizerImpl(
   std::unique_ptr<cumotion_lib::TrajectoryOptimizerConfig> trajopt_config,
   double interpolation_dt,
@@ -52,6 +54,7 @@ TrajectoryOptimizerImpl::TrajectoryOptimizerImpl(
 }
 
 // Initialize implementation.
+// 用 cumotion_lib::CreateTrajectoryOptimizer 建立外部库对象，空配置或创建失败抛出异常。
 void TrajectoryOptimizerImpl::Initialize()
 {
   if (initialized_) {
@@ -79,12 +82,14 @@ void TrajectoryOptimizerImpl::Initialize()
 }
 
 // Trajectory optimizer accessor.
+// 返回优化器共享指针，专用规划流程可使用更低层接口。
 std::shared_ptr<cumotion_lib::TrajectoryOptimizer> TrajectoryOptimizerImpl::GetTrajectoryOptimizer()
 {
   return trajectory_optimizer_;
 }
 
 // Plan to task-space target implementation.
+// 调用末端任务空间目标求解，成功后输出同一组位置、速度、加速度轨迹与 dt。
 bool TrajectoryOptimizerImpl::PlanToTaskSpaceTarget(
   const Eigen::VectorXd & start_state,
   const cumotion_lib::TrajectoryOptimizer::TaskSpaceTarget & task_target,
@@ -132,6 +137,7 @@ bool TrajectoryOptimizerImpl::PlanToTaskSpaceTarget(
 }
 
 // Plan to c-space target implementation.
+// 调用关节配置目标求解，其余状态校验、采样和时间缩放流程与姿态目标一致。
 bool TrajectoryOptimizerImpl::PlanToCSpaceTarget(
   const Eigen::VectorXd & start_state,
   const cumotion_lib::TrajectoryOptimizer::CSpaceTarget & cspace_target,
@@ -178,6 +184,7 @@ bool TrajectoryOptimizerImpl::PlanToCSpaceTarget(
   return !trajectory.empty();
 }
 
+// 对候选任务空间目标集合求解，除了轨迹还返回被选择的目标索引。
 bool TrajectoryOptimizerImpl::PlanToTaskSpaceGoalset(
   const Eigen::VectorXd & start_state,
   const cumotion_lib::TrajectoryOptimizer::TaskSpaceTargetGoalset & goalset,
@@ -226,6 +233,7 @@ bool TrajectoryOptimizerImpl::PlanToTaskSpaceGoalset(
 }
 
 // Extract trajectory points implementation.
+// 按 interpolation_dt 在轨迹定义域采样，同时求位置及一二阶导数。
 void TrajectoryOptimizerImpl::ExtractTrajectoryPoints(
   const cumotion_lib::Trajectory * traj,
   std::vector<Eigen::VectorXd> & trajectory,
@@ -241,6 +249,7 @@ void TrajectoryOptimizerImpl::ExtractTrajectoryPoints(
   double duration = domain.span();
   double dt = interpolation_dt_;
 
+  // 点数采用向下取整加一；duration 不是 dt 整数倍时此公式不额外补最后端点。
   int num_points = static_cast<int>(duration / dt) + 1;
   trajectory.resize(num_points);
   velocities.resize(num_points);
@@ -262,6 +271,7 @@ void TrajectoryOptimizerImpl::ExtractTrajectoryPoints(
     num_points, dt);
 }
 
+// 仅对 (0,1] 时间缩放因子生效：dt 变长，速度/加速度按相应一阶/二阶比例变小。
 void TrajectoryOptimizerImpl::ApplyTimeDilationToTrajectory(
   const double time_dilation_factor,
   double & dt,
@@ -277,6 +287,7 @@ void TrajectoryOptimizerImpl::ApplyTimeDilationToTrajectory(
   const double new_dt = old_dt * (1.0 / time_dilation_factor);
 
   // Scale derivatives for the new dt; positions remain unchanged.
+  // 位置不变，速度乘因子、加速度乘因子平方，保持与新时间间隔一致。
   const double vel_scale = old_dt / new_dt;
   const double acc_scale = vel_scale * vel_scale;
 

@@ -1,3 +1,4 @@
+// 任务空间参考位姿控制插件：由 RMPflow 目标驱动关节积分状态；这是与批量轨迹规划不同的控制路径。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
@@ -26,6 +27,7 @@ namespace isaac_ros
 namespace cumotion_controllers
 {
 
+// 声明末端帧、命令帧和积分同步时间常数，末端帧为空时拒绝配置。
 controller_interface::CallbackReturn IkController::DeclareSubclassParameters()
 {
   ee_frame_name_in_ = auto_declare<std::string>("end_effector_frame", "");
@@ -40,6 +42,7 @@ controller_interface::CallbackReturn IkController::DeclareSubclassParameters()
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
+// 解析真实运动学末端帧并加入 RMPflow 目标，日志显示可能被替换的父帧。
 void IkController::ConfigureEndEffectors()
 {
   ee_frame_handle_ = kinematics_->frame(ee_frame_name_in_);
@@ -51,6 +54,7 @@ void IkController::ConfigureEndEffectors()
     ee_frame_name_in_.c_str(), ee_frame_name_.c_str());
 }
 
+// 订阅 PoseStamped，过滤未设置参考后做坐标变换，并写入非实时侧目标缓冲。
 void IkController::SubscribeToReferencePose(
   rclcpp_lifecycle::LifecycleNode & node, const std::string & pose_topic)
 {
@@ -68,6 +72,7 @@ void IkController::SubscribeToReferencePose(
     });
 }
 
+// 激活时以当前积分位置的 FK 初始化位姿目标及配置空间吸引子。
 void IkController::OnSubclassActivate()
 {
   rmpflow_->setPoseTarget(ee_frame_name_,
@@ -76,6 +81,7 @@ void IkController::OnSubclassActivate()
   pose_target_buffer_.writeFromNonRT(std::nullopt);
 }
 
+// 停用时清空缓冲和 RMPflow 目标，避免旧目标继续作用。
 void IkController::OnSubclassDeactivate()
 {
   pose_target_buffer_.writeFromNonRT(std::nullopt);
@@ -84,12 +90,14 @@ void IkController::OnSubclassDeactivate()
   }
 }
 
+// 清理订阅与位姿目标缓冲。
 void IkController::OnSubclassCleanup()
 {
   pose_sub_.reset();
   pose_target_buffer_.writeFromNonRT(std::nullopt);
 }
 
+// 实时侧仅将存在且数值有限的目标送入 RMPflow。
 void IkController::ApplyPoseTargetsToRmpflow()
 {
   const auto target = *pose_target_buffer_.readFromRT();
@@ -99,6 +107,7 @@ void IkController::ApplyPoseTargetsToRmpflow()
   }
 }
 
+// 用 dt/(tau+dt) 低通拉近积分位置/速度与硬件读数，补偿安全混合后执行与积分的偏差。
 void IkController::SyncIntegratorToHardware(double dt)
 {
   // Continuous low-pass: safety_controller blends blend*q_ik + (1-blend)*q_freeze

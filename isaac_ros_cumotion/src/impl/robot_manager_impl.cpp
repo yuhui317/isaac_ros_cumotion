@@ -1,3 +1,4 @@
+// 机器人模型与状态桥接：从 URDF/XRDF 构建原生运动学，按机器人配置空间顺序缓存 JointState。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
@@ -41,6 +42,7 @@ namespace cumotion
 {
 
 // Constructor implementation.
+// 读取两个机器人描述文件，建立模型/运动学，选择工具帧并生成关节名称到配置空间索引。
 RobotManagerImpl::RobotManagerImpl(
   const std::string & urdf_file_path,
   const std::string & xrdf_file_path,
@@ -121,6 +123,7 @@ RobotManagerImpl::RobotManagerImpl(
   BuildJointNameToIndexMap();
 }
 
+// 依据 robot_description 的 cSpaceCoordName 顺序建立索引，不能假设 ROS 消息原顺序正确。
 void RobotManagerImpl::BuildJointNameToIndexMap()
 {
   joint_name_to_index_.clear();
@@ -135,6 +138,7 @@ void RobotManagerImpl::BuildJointNameToIndexMap()
   }
 }
 
+// 在状态锁内更新已知关节位置/速度；首次消息按配置空间尺寸初始化，不增长缓冲。
 void RobotManagerImpl::UpdateJointState(
   const std::vector<std::string> & joint_names,
   const std::vector<double> & position,
@@ -169,6 +173,7 @@ void RobotManagerImpl::UpdateJointState(
   for (std::size_t i = 0; i < joint_names.size(); ++i) {
     const auto & joint_name = joint_names[i];
 
+    // 忽略不属于配置空间的关节；消息缺少某些关节时原缓冲值会保留。
     auto it = joint_name_to_index_.find(joint_name);
     if (it == joint_name_to_index_.end()) {
       continue;
@@ -189,12 +194,14 @@ void RobotManagerImpl::UpdateJointState(
 }
 
 // Robot description accessor.
+// 在模型锁内复制共享指针，供规划/IK 组件使用当前描述。
 std::shared_ptr<cumotion_lib::RobotDescription> RobotManagerImpl::GetRobotDescription() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
   return robot_description_;
 }
 
+// 从新文本重新创建模型与运动学，再重建关节顺序；失败会返回 false，不能据此假设旧模型完整回滚。
 bool RobotManagerImpl::SetRobotDescription(const std::string & urdf, const std::string & xrdf)
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -276,12 +283,14 @@ bool RobotManagerImpl::SetRobotDescription(const std::string & urdf, const std::
   return true;
 }
 
+// 模型锁内读取缓存 XRDF 文本。
 std::string RobotManagerImpl::GetXRDF() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
   return robot_xrdf_;
 }
 
+// 模型锁内读取缓存 URDF 文本。
 std::string RobotManagerImpl::GetURDF() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -289,6 +298,7 @@ std::string RobotManagerImpl::GetURDF() const
 }
 
 // Kinematics accessor.
+// 返回当前运动学对象的共享指针。
 std::shared_ptr<cumotion_lib::Kinematics> RobotManagerImpl::GetKinematics() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -296,6 +306,7 @@ std::shared_ptr<cumotion_lib::Kinematics> RobotManagerImpl::GetKinematics() cons
 }
 
 // Tool frame handle accessor.
+// 返回当前模型解析出的工具帧句柄。
 cumotion_lib::Kinematics::FrameHandle RobotManagerImpl::GetToolFrameHandle() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -303,6 +314,7 @@ cumotion_lib::Kinematics::FrameHandle RobotManagerImpl::GetToolFrameHandle() con
 }
 
 // Tool frame name accessor.
+// 返回默认或配置的工具帧名称。
 std::string RobotManagerImpl::GetToolFrame() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -310,6 +322,7 @@ std::string RobotManagerImpl::GetToolFrame() const
 }
 
 // Base frame name accessor.
+// 返回模型的基坐标系名称，作为轨迹和场景的坐标约定之一。
 std::string RobotManagerImpl::GetBaseFrame() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -317,6 +330,7 @@ std::string RobotManagerImpl::GetBaseFrame() const
 }
 
 // Joint names accessor.
+// 按原生模型配置空间顺序列出关节，后续 ROS 轨迹沿用该顺序。
 std::vector<std::string> RobotManagerImpl::GetJointNames() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -333,6 +347,7 @@ std::vector<std::string> RobotManagerImpl::GetJointNames() const
 }
 
 // Number of joints accessor.
+// 返回配置空间维数；模型缺失时返回 0。
 int RobotManagerImpl::GetNumJoints() const
 {
   std::lock_guard<std::mutex> lock(robot_description_mutex_);
@@ -343,6 +358,7 @@ int RobotManagerImpl::GetNumJoints() const
 }
 
 // Get current joint state implementation.
+// 状态有效时复制位置缓冲为 Eigen 向量；速度不包含在此输出中。
 bool RobotManagerImpl::GetCurrentJointState(Eigen::VectorXd & state) const
 {
   std::lock_guard<std::mutex> lock(state_mutex_);
@@ -358,6 +374,7 @@ bool RobotManagerImpl::GetCurrentJointState(Eigen::VectorXd & state) const
 }
 
 // Check if valid joint state is available.
+// 在状态锁内查询缓冲有效性，不等价于传感器新鲜度检查。
 bool RobotManagerImpl::HasValidJointState() const
 {
   std::lock_guard<std::mutex> lock(state_mutex_);
@@ -365,6 +382,7 @@ bool RobotManagerImpl::HasValidJointState() const
 }
 
 // Get joint state buffer.
+// 返回整个关节缓冲的独立副本，锁释放后调用方不引用内部可变容器。
 JointStateBuffer RobotManagerImpl::GetJointStateBuffer() const
 {
   // Lock protects js_buffer_ while making a copy. Caller receives an independent copy,

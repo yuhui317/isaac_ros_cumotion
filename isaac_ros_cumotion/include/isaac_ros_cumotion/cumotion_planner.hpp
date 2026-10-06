@@ -1,3 +1,4 @@
+// cuMotion 规划器 ROS 接口：组合目标、机器人状态、碰撞世界与原生 cumotion_lib 规划组件；此头文件不实现控制器执行。
 // SPDX-FileCopyrightText: NVIDIA CORPORATION & AFFILIATES
 // Copyright (c) 2021-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
@@ -74,6 +75,7 @@ namespace cumotion
  *  - IK action server
  *  - MotionPlan action server
  */
+// 节点持有三类动作服务器、TF、关节状态和 ESDF 客户端，规划求解细节位于对应 .cpp。
 class CumotionPlanner final : public rclcpp::Node
 {
 public:
@@ -87,51 +89,66 @@ public:
   /**
    * Constructs and fully initializes a cuMotion planner node.
    */
+  // 构造时初始化节点参数及各管理器，依赖 URDF/XRDF 与外部 cuMotion 库。
   explicit CumotionPlanner(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
   // Initializes the world manager for collision checking and environment updates.
+  // 初始化碰撞世界管理器，后续 MoveIt 几何体与 nvblox ESDF 都由其维护。
   void InitializeWorldManager();
 
   // Initializes the robot manager for robot description, kinematics, and joint state management.
+  // 初始化机器人描述、运动学以及 JointState 按名称重排的状态缓冲。
   void InitializeRobotManager();
 
   // Initializes the robot-world inspector used for collision sphere queries and validation.
+  // 建立机器人/世界检查器，用于碰撞球查询与可视化。
   void InitializeRobotWorldInspector();
 
   // Initializes the trajectory optimizer for motion planning operations.
+  // 建立调用原生 cuMotion 轨迹优化器的 ROS 侧包装。
   void InitializeTrajectoryOptimizer();
 
   // Initializes the IK solver for inverse kinematics queries.
+  // 建立 IK 求解组件，供 IKSolution 动作使用。
   void InitializeIkSolver();
 
   // Initializes the MoveGroup action server for motion planning requests.
+  // 注册兼容 MoveIt 的 MoveGroup 动作服务器，不等于轨迹控制器。
   void InitializeMoveGroupActionServer();
 
   // Initializes the IK action server for inverse kinematics requests.
+  // 注册逆运动学动作服务器。
   void InitializeIkActionServer();
 
   // Initializes the MotionPlan (goalset) action server.
+  // 注册支持目标集合等专用请求的 MotionPlan 动作服务器。
   void InitializeMotionPlanActionServer();
 
   // Initializes the static planning scene service client.
+  // 建立读取静态碰撞场景的服务客户端。
   void InitializeStaticPlanningSceneClient();
 
   // Initializes robot description Get/Set services.
+  // 注册机器人 URDF/XRDF 获取与替换服务。
   void InitializeRobotDescriptionService();
 
   // Publish collision-sphere markers.
+  // 发布机器人碰撞球 Marker，用于观察碰撞模型与实体外形的关系。
   void PublishCollisionSpheres();
 
   // Callback for joint state messages. Updates the RobotManagerImpl state buffer.
+  // 把实时关节消息交给 RobotManager，未知关节不会进入配置空间状态。
   void JointStateCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
 
   // Gets the start configuration from a MoveIt motion plan request.
+  // 提取请求起点或使用缓存当前关节状态；实现中请求位置向量的次序必须与配置空间一致。
   bool GetStartCSpacePosition(
     const moveit_msgs::msg::MotionPlanRequest & request,
     Eigen::VectorXd & start_cspace_position);
 
   // Gets goal constraints from a MoveIt motion plan request.
+  // 解析 MoveIt 第一个约束集合中的关节目标或末端位置/朝向目标。
   bool GetGoal(
     const moveit_msgs::msg::MotionPlanRequest & request,
     cumotion_lib::Pose3 & goal_task_space_pose,
@@ -140,77 +157,97 @@ private:
     bool & has_joint_goal);
 
   // Calls the static planning scene service to load collision objects from a scene file.
+  // 调用静态场景服务以加载场景文件中的碰撞几何。
   void CallPublishStaticPlanningSceneService();
 
   // Callback for the static planning scene service response.
+  // 接收场景服务响应，后续规划合并静态与请求中的动态物体。
   void StaticSceneServiceCallback(
     rclcpp::Client<isaac_ros_cumotion_interfaces::srv::PublishStaticPlanningScene>::SharedFuture
     future);
 
   // Robot description service callbacks.
+  // 返回缓存的机器人描述文本，供外部客户端核对当前模型。
   void HandleGetRobotDescription(
     const std::shared_ptr<isaac_ros_cumotion_interfaces::srv::GetRobotDescription::Request> request,
     std::shared_ptr<isaac_ros_cumotion_interfaces::srv::GetRobotDescription::Response> response);
 
+  // 处理运行时机器人模型替换；依赖组件需要随机器人描述一起重新建立。
   void HandleSetRobotDescription(
     const std::shared_ptr<isaac_ros_cumotion_interfaces::srv::SetRobotDescription::Request> request,
     std::shared_ptr<isaac_ros_cumotion_interfaces::srv::SetRobotDescription::Response> response);
 
+  // 检查规划器繁忙或机器人模型正在替换时是否拒绝 MoveGroup 请求。
   rclcpp_action::GoalResponse HandleMoveGroupGoal(
     const rclcpp_action::GoalUUID & uuid,
     std::shared_ptr<const moveit_msgs::action::MoveGroup::Goal> goal);
 
+  // 接收取消请求的协议入口，取消传播能力仍应结合执行实现检查。
   rclcpp_action::CancelResponse HandleMoveGroupCancel(
     const std::shared_ptr<GoalHandleMoveGroup> goal_handle);
 
+  // 接受目标后的入口，.cpp 中另起线程执行规划。
   void HandleMoveGroupAccepted(
     const std::shared_ptr<GoalHandleMoveGroup> goal_handle);
 
+  // 更新世界、读取起点和目标，再调用轨迹优化并返回 MoveIt RobotTrajectory。
   void ExecuteMoveGroupGoal(
     const std::shared_ptr<GoalHandleMoveGroup> goal_handle);
 
+  // IK 目标接受/拒绝的入口，与规划共用机器人和世界状态。
   rclcpp_action::GoalResponse HandleIkGoal(
     const rclcpp_action::GoalUUID & uuid,
     std::shared_ptr<const IKAction::Goal> goal);
 
+  // IK 取消请求的入口。
   rclcpp_action::CancelResponse HandleIkCancel(
     const std::shared_ptr<GoalHandleIk> goal_handle);
 
+  // 启动已接受的 IK 请求。
   void HandleIkAccepted(
     const std::shared_ptr<GoalHandleIk> goal_handle);
 
+  // 执行 IK 请求并组织动作结果。
   void ExecuteIkGoal(
     const std::shared_ptr<GoalHandleIk> goal_handle);
 
+  // 专用 MotionPlan 请求的接受/拒绝入口。
   rclcpp_action::GoalResponse HandleMotionPlanGoal(
     const rclcpp_action::GoalUUID & uuid,
     std::shared_ptr<const MotionPlan::Goal> goal);
 
+  // 专用规划动作的取消入口。
   rclcpp_action::CancelResponse HandleMotionPlanCancel(
     const std::shared_ptr<GoalHandleMotionPlan> goal_handle);
 
+  // 启动已接受的专用 MotionPlan 请求。
   void HandleMotionPlanAccepted(const std::shared_ptr<GoalHandleMotionPlan> goal_handle);
 
+  // 分派专用规划请求到抓取、关节空间或姿态目标流程。
   void ExecuteMotionPlan(const std::shared_ptr<GoalHandleMotionPlan> goal_handle);
 
+  // 专用抓取规划分支接口；本轮仅阅读声明，具体路径约束留作下一轮分析。
   void ExecuteGraspPlanning(
     const std::shared_ptr<const MotionPlan::Goal> & request,
     const Eigen::VectorXd & start_state,
     double time_dilation,
     std::shared_ptr<MotionPlan::Result> & result);
 
+  // 专用关节空间规划分支接口。
   void ExecuteCSpacePlanning(
     const std::shared_ptr<const MotionPlan::Goal> & request,
     const Eigen::VectorXd & start_state,
     double time_dilation,
     std::shared_ptr<MotionPlan::Result> & result);
 
+  // 专用姿态目标规划分支接口。
   void ExecutePosePlanning(
     const std::shared_ptr<const MotionPlan::Goal> & request,
     const Eigen::VectorXd & start_state,
     double time_dilation,
     std::shared_ptr<MotionPlan::Result> & result);
 
+  // 把允许的平移/朝向路径与终端偏差表达成优化器约束。
   void CreatePathConstraintsFromParams(
     float translation_path_deviation_limit,
     float translation_terminal_deviation_limit,
@@ -222,26 +259,31 @@ private:
     cumotion_lib::TrajectoryOptimizer::TranslationConstraint & translation_constraint,
     cumotion_lib::TrajectoryOptimizer::OrientationConstraint & orientation_constraint);
 
+  // 从专用 MotionPlan 请求解析配置空间起点。
   bool GetMotionPlanStartState(
     const std::shared_ptr<const MotionPlan::Goal> & request,
     Eigen::VectorXd & start_state);
 
+  // 从专用请求提取候选目标 Pose 集合。
   bool ExtractGoalPoses(
     const std::shared_ptr<const MotionPlan::Goal> & request,
     std::vector<cumotion_lib::Pose3> & goal_poses);
 
   // Gets `object_frame` pose in `world_frame`. Returns true on success.
+  // 利用 TF 查询物体相对 world_frame 的 Pose，失败通过布尔结果反馈。
   bool GetObjectPose(
     const std::string & world_frame,
     const std::string & object_frame,
     geometry_msgs::msg::Pose & object_pose);
 
+  // 按偏移所属坐标系组合两个 Pose，局部/世界偏移的乘法次序不可互换。
   cumotion_lib::Pose3 ComposeWithOffset(
     const cumotion_lib::Pose3 & base_pose,
     const cumotion_lib::Pose3 & offset,
     bool offset_in_base_frame);
 
   // Create an ESDF request message (requests all allocated blocks from nvblox).
+  // 构造 nvblox ESDF 请求，可附带待清除物体区域。
   std::shared_ptr<nvblox_msgs::srv::EsdfAndGradients::Request> CreateEsdfRequest(
     const EsdfClearingObjects * clearing_objects = nullptr,
     bool update_esdf = true) const;
@@ -250,15 +292,18 @@ private:
    * Update the cuMotion world ESDF grid by calling the nvblox ESDF service.
    * Returns true on success, false on failure.
    */
+  // 从 nvblox 拉取距离场并交给世界管理器，失败将影响碰撞可用性。
   bool UpdateEsdfFromNvblox(const EsdfClearingObjects * clearing_objects, bool update_esdf);
 
   /**
    * Initializes ESDF workspace bounds before planning consumes the ESDF.
    * Returns true if bounds are already cached or were initialized successfully.
    */
+  // 在规划使用距离场前确保工作空间几何边界已缓存。
   bool EnsureEsdfWorkspaceBoundsCached();
 
   // Publish the current cuMotion world occupancy as voxels if enabled and subscribed.
+  // 将世界占据体素以可视化消息发布，并不替代碰撞数据输入。
   void PublishWorldVoxels();
 
   // Robot manager for robot description, kinematics, and joint state management.
@@ -395,6 +440,7 @@ private:
   bool robot_description_update_in_progress_{false};
 
   // Mutex to protect planner_busy_ from concurrent access.
+  // 保护规划器繁忙状态等跨回调标志；机器人模型替换还使用单独的互斥锁。
   mutable std::mutex state_mutex_;
 
   // Mutex to serialize robot description swaps and dependent component rebuilds.
